@@ -1,12 +1,12 @@
 @(message: String)
 
-@main("Welcome to Play") {
+@main(message) {
 
 
 <body>
 	<h1>Photo Album</h1>
 	
-	<a href="@routes.Application.postPhoto()"><button type="button">Click Me!</button></a> 
+	<a href="@routes.Application.postPhotoPage()"><button type="button">Click Me!</button></a> 
 
 </body>
 

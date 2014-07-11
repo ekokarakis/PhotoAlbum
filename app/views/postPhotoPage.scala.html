@@ -1,0 +1,25 @@
+@import helper.twitterBootstrap._
+
+@(photoForm: Form[Photo])
+
+@main("Post Photo") {
+
+<h1>Post Photo</h1>
+
+@helper.form(action = routes.Application.postPhoto(), 'enctype -> "multipart/form-data") {
+    
+    @helper.inputText(photoForm("title"), '_label -> "Title", '_showConstraints -> false)
+    
+    @helper.inputFile(photoForm("data"), '_label -> "Photo upload", '_showConstraints -> false) 
+    
+    <input type="submit" value="Submit" />
+}
+
+<!--
+<form id="asd">
+Title: <input type="text" name="title"><br>
+<input type="submit" value="Submit Photo">
+</form>
+--> 
+
+}

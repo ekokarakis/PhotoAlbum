@@ -10,4 +10,6 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 
 # Post Photo Page
-GET		/postPhoto					controllers.Application.postPhoto()
+GET		/postPhoto					controllers.Application.postPhotoPage()
+
+POST 	/photo						controllers.Application.postPhoto()
