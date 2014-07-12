@@ -1,7 +1,7 @@
 package models;
 
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
+import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
@@ -11,8 +11,8 @@ import play.db.ebean.Model;
 
 @Entity
 public class PhotoData extends Model {
-//	@Id 
-//	public Long id;
+	@Id 
+	public Long id;
 	
 	@OneToOne	@MapsId
 	public Photo photo;
@@ -22,5 +22,7 @@ public class PhotoData extends Model {
 	public byte[] data;
 	
 	public String encoding;
+	
+	public static Finder<Long,PhotoData> find = new Finder<Long,PhotoData>(Long.class, PhotoData.class); 
 
 }

@@ -2,71 +2,115 @@ package controllers;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import models.Photo;
 import models.PhotoData;
+import play.Logger;
 import play.data.Form;
+import play.mvc.Call;
 import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Result;
+import play.mvc.Results;
 import views.html.index;
 
 public class Application extends Controller {
 
-    public static Result index() {
-        return ok(index.render("LOL"));
-    }
-    
-    public static Result postPhotoPage(){
-    	Form<Photo> photoForm = new Form<Photo>(Photo.class);//form(Photo.class);
-    	return ok(views.html.postPhotoPage.render());
-    }
-    
-    private static byte[] photoData;
-    
-    public static Result getPhoto() {
-    	if (photoData != null) {
-    		return ok(photoData).as("image/jpeg");
-    	} else {
-    		return ok().as("image/jpeg");
-    	}
-    }
-    
-    public static Result postPhoto() throws IOException{
-    	MultipartFormData body = request().body().asMultipartFormData();
-    	
-//    	Form<Photo> photoForm = new Form<Photo>(Photo.class);
-//    	photoForm
-    	Photo photo = new Photo();// photoForm.bindFromRequest().get();
-    	photo.title = body.asFormUrlEncoded().get("title")[0];
-    	photo.save();
-    	
-    	PhotoData photoData = new PhotoData();
-    	photoData.photo = photo;
-    	File file = body.getFile("data").getFile();
-    	photoData.data = convertToByteArray(file);
-    	photoData.save();
-    	
-    	
-    	play.Logger.debug("title: " + photo.title + ", data byte length: " +  photoData.data.length);
-        return ok(index.render(photo.title));// + photo.data.length));
-//    	return ok(photo.data).as("image/jpeg");
-    }
-    
-    private static byte[] convertToByteArray(File file) {
-    	byte[] result = new byte[(int) file.length()];
-    
-    	FileInputStream fis = null;
-    	try {
+	public static Result index() {
+		List<Photo> photoList = Photo.find.orderBy("timestamp desc").findList();
+		Logger.debug("found " + photoList.size() + " photos");
+		return ok(index.render(photoList));
+	}
+
+	public static Result postPhotoPage() {
+		Form<Photo> photoForm = new Form<Photo>(Photo.class);// form(Photo.class);
+		return ok(views.html.postPhotoPage.render());
+	}
+
+	private static byte[] photoData;
+
+	public static Result getPhotoData(Long id) {
+		List<PhotoData> photoDataList = PhotoData.find.where()
+				.eq("photo_id", id).findList();
+		if (photoDataList.size() > 0) {
+			Logger.debug("found " + photoDataList.size() + " photos");
+			PhotoData photoData = photoDataList.get(0);
+			Logger.debug("encoding " + photoData.encoding);
+			Logger.debug("data length " + photoData.data.length);
+			return ok(photoData.data).as("image/" + photoData.encoding);
+		} else {
+			Logger.debug("no photo found");
+			return ok().as("image/jpeg");
+		}
+	}
+
+	private static String getImageEncoding(File file) {
+		try {
+			ImageInputStream imageInputStream = ImageIO
+					.createImageInputStream(new FileInputStream(file));
+			Iterator<ImageReader> iter = ImageIO
+					.getImageReaders(imageInputStream);
+			// if (!iter.hasNext()) {
+			// // this always happens
+			// }
+			ImageReader reader = (ImageReader) iter.next();
+			return reader.getFormatName();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Logger.error(e.getMessage());
+			return null;
+		}
+	}
+
+	public static Result postPhoto() throws IOException {
+		MultipartFormData body = request().body().asMultipartFormData();
+
+		File file = body.getFile("data").getFile();
+		String imageEncoding = getImageEncoding(file);
+
+		if (imageEncoding != null) {
+			// Form<Photo> photoForm = new Form<Photo>(Photo.class);
+			// photoForm
+			Photo photo = new Photo();// photoForm.bindFromRequest().get();
+			photo.title = body.asFormUrlEncoded().get("title")[0];
+			photo.timestamp = new Date();
+			photo.save();
+
+			PhotoData photoData = new PhotoData();
+			photoData.photo = photo;
+			photoData.data = convertToByteArray(file);
+			photoData.encoding = imageEncoding.toLowerCase();
+			photoData.save();
+
+			play.Logger.debug("title: " + photo.title + ", data byte length: "
+					+ photoData.data.length);
+			return redirect(controllers.routes.Application.index());
+//			return index();// + photo.data.length));
+			// return ok(photo.data).as("image/jpeg");
+		} else {
+			return Results.badRequest("File was not a photo");
+		}
+	}
+
+	private static byte[] convertToByteArray(File file) {
+		byte[] result = new byte[(int) file.length()];
+
+		FileInputStream fis = null;
+		try {
 			fis = new FileInputStream(file);
 			fis.read(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (fis != null) { 
+			if (fis != null) {
 				try {
 					fis.close();
 				} catch (IOException e) {
@@ -74,8 +118,8 @@ public class Application extends Controller {
 				}
 			}
 		}
-    	
-    	return result;
-    }
+
+		return result;
+	}
 
 }

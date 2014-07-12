@@ -1,14 +1,14 @@
-@(message: String)
+@(photoList: List[Photo])
 
-@main(message) {
+@main("Photo Album") {
 
 
 <body>
 	<h1>Photo Album</h1>
 	
-	<a href="@routes.Application.postPhotoPage()"><button type="button">Click Me!</button></a>
-	
-	<img src="@routes.Application.getPhoto()" width="150" height="150"> 
+	<a href="@routes.Application.postPhotoPage()"><button type="button">Upload new photo</button></a>
+
+	@for(photo <- photoList) { @photoTemplate(photo, null) }
 
 </body>
 

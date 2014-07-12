@@ -1,0 +1,6 @@
+@(photo: Photo, comments: List[String])
+
+<br>
+<h2>@photo.title</h2>
+	
+<img src="@routes.Application.getPhotoData(photo.id)" height="300">

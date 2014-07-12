@@ -14,4 +14,4 @@ GET		/postPhoto					controllers.Application.postPhotoPage()
 
 POST 	/photo						controllers.Application.postPhoto()
 
-GET 	/photo/abcd					controllers.Application.getPhoto()
+GET 	/photo/:id					controllers.Application.getPhotoData(id: Long)

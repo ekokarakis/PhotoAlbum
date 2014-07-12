@@ -9,6 +9,7 @@ import javax.persistence.OneToOne;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
+import play.db.ebean.Model.Finder;
 
 
 @Entity
@@ -24,4 +25,6 @@ public class Photo extends Model {
 	
 	@OneToOne(mappedBy = "photo")
 	public PhotoData data;
+	
+	public static Finder<Long,Photo> find = new Finder<Long,Photo>(Long.class, Photo.class); 
 }
