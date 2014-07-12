@@ -11,9 +11,11 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import models.Comment;
 import models.Photo;
 import models.PhotoData;
 import play.Logger;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Call;
 import play.mvc.Controller;
@@ -27,6 +29,12 @@ public class Application extends Controller {
 	public static Result index() {
 		List<Photo> photoList = Photo.find.orderBy("timestamp desc").findList();
 		Logger.debug("found " + photoList.size() + " photos");
+		for (Photo photo: photoList) {
+			List<Comment> comments = photo.comments;
+			for (Comment comment: comments) {
+				Logger.debug(comment.text);
+			}
+		}
 		return ok(index.render(photoList));
 	}
 
@@ -70,7 +78,7 @@ public class Application extends Controller {
 		}
 	}
 
-	public static Result postPhoto() throws IOException {
+	public static Result postPhoto() {
 		MultipartFormData body = request().body().asMultipartFormData();
 
 		File file = body.getFile("data").getFile();
@@ -120,6 +128,30 @@ public class Application extends Controller {
 		}
 
 		return result;
+	}
+	
+	public static Result postComment(Long photoId) {
+		DynamicForm formData = Form.form().bindFromRequest();
+//		formData.bindFromRequest();
+		String text = formData.get("text");
+		Logger.debug("comment added: " + text);
+		
+		if (text != null) {
+			text = text.trim();
+			if (text.length() > 0) {
+				Comment comment = new Comment();
+				comment.text = text;
+				comment.timestamp = new Date();
+				//		comment.
+				Photo photo = new Photo();
+				photo.id = photoId;
+
+				comment.photo = photo;
+				comment.save();
+			}
+		}
+		
+		return redirect(controllers.routes.Application.index());
 	}
 
 }

@@ -15,3 +15,5 @@ GET		/postPhoto					controllers.Application.postPhotoPage()
 POST 	/photo						controllers.Application.postPhoto()
 
 GET 	/photo/:id					controllers.Application.getPhotoData(id: Long)
+
+POST 	/comment/:id				controllers.Application.postComment(id: Long)
