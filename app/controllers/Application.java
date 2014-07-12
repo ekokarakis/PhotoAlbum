@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import models.Photo;
+import models.PhotoData;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData;
@@ -21,7 +22,17 @@ public class Application extends Controller {
     
     public static Result postPhotoPage(){
     	Form<Photo> photoForm = new Form<Photo>(Photo.class);//form(Photo.class);
-    	return ok(views.html.postPhotoPage.render(photoForm));
+    	return ok(views.html.postPhotoPage.render());
+    }
+    
+    private static byte[] photoData;
+    
+    public static Result getPhoto() {
+    	if (photoData != null) {
+    		return ok(photoData).as("image/jpeg");
+    	} else {
+    		return ok().as("image/jpeg");
+    	}
     }
     
     public static Result postPhoto() throws IOException{
@@ -31,14 +42,18 @@ public class Application extends Controller {
 //    	photoForm
     	Photo photo = new Photo();// photoForm.bindFromRequest().get();
     	photo.title = body.asFormUrlEncoded().get("title")[0];
+    	photo.save();
+    	
+    	PhotoData photoData = new PhotoData();
+    	photoData.photo = photo;
     	File file = body.getFile("data").getFile();
-//    	byte[] data = new byte[(int) file.length()];
-//    	file.re
-//    	InputStream is = new FileInputStream(body.getFile("data").getFile());
-//    	byte[] data = org.apache.commons.io.IOUtils.toByteArray(is);
-    	photo.data = convertToByteArray(file);
-    	play.Logger.debug("title: " + photo.title + ", data byte length: " +  photo.data.length);
+    	photoData.data = convertToByteArray(file);
+    	photoData.save();
+    	
+    	
+    	play.Logger.debug("title: " + photo.title + ", data byte length: " +  photoData.data.length);
         return ok(index.render(photo.title));// + photo.data.length));
+//    	return ok(photo.data).as("image/jpeg");
     }
     
     private static byte[] convertToByteArray(File file) {

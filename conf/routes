@@ -13,3 +13,5 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET		/postPhoto					controllers.Application.postPhotoPage()
 
 POST 	/photo						controllers.Application.postPhoto()
+
+GET 	/photo/abcd					controllers.Application.getPhoto()

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
+import javax.persistence.OneToOne;
 
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -19,10 +19,9 @@ public class Photo extends Model {
 	@Constraints.Required
 	public String title;
 	
-	@Lob
-	@Constraints.Required
-	public byte[] data;
-	
 	@Formats.DateTime(pattern="dd/MM/yyyy")
 	public Date timestamp;
+	
+	@OneToOne(mappedBy = "photo")
+	public PhotoData data;
 }
