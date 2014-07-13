@@ -26,6 +26,7 @@ import views.html.index;
 
 public class Application extends Controller {
 
+	//retrieving a list of all the photos and their associated comments 
 	public static Result index() {
 		List<Photo> photoList = Photo.find.orderBy("timestamp desc").findList();
 		Logger.debug("found " + photoList.size() + " photos");
@@ -38,13 +39,13 @@ public class Application extends Controller {
 		return ok(index.render(photoList));
 	}
 
+    //creating a photo form and returns the rendered photo page template 
 	public static Result postPhotoPage() {
-		Form<Photo> photoForm = new Form<Photo>(Photo.class);// form(Photo.class);
+		Form<Photo> photoForm = new Form<Photo>(Photo.class);
 		return ok(views.html.postPhotoPage.render());
 	}
 
-	private static byte[] photoData;
-
+	//retrieving the actual photo data by id from the DB
 	public static Result getPhotoData(Long id) {
 		List<PhotoData> photoDataList = PhotoData.find.where()
 				.eq("photo_id", id).findList();
@@ -60,15 +61,13 @@ public class Application extends Controller {
 		}
 	}
 
+	//getting the encoding type of the image
 	private static String getImageEncoding(File file) {
 		try {
 			ImageInputStream imageInputStream = ImageIO
 					.createImageInputStream(new FileInputStream(file));
 			Iterator<ImageReader> iter = ImageIO
 					.getImageReaders(imageInputStream);
-			// if (!iter.hasNext()) {
-			// // this always happens
-			// }
 			ImageReader reader = (ImageReader) iter.next();
 			return reader.getFormatName();
 		} catch (Exception e) {
@@ -78,16 +77,16 @@ public class Application extends Controller {
 		}
 	}
 
+	//populating the photo details and data from the template form and save to the DB
 	public static Result postPhoto() {
 		MultipartFormData body = request().body().asMultipartFormData();
 
 		File file = body.getFile("data").getFile();
 		String imageEncoding = getImageEncoding(file);
 
+		//saving the photo details and data only if there is an image
 		if (imageEncoding != null) {
-			// Form<Photo> photoForm = new Form<Photo>(Photo.class);
-			// photoForm
-			Photo photo = new Photo();// photoForm.bindFromRequest().get();
+			Photo photo = new Photo();
 			photo.title = body.asFormUrlEncoded().get("title")[0];
 			photo.timestamp = new Date();
 			photo.save();
@@ -101,13 +100,12 @@ public class Application extends Controller {
 			play.Logger.debug("title: " + photo.title + ", data byte length: "
 					+ photoData.data.length);
 			return redirect(controllers.routes.Application.index());
-//			return index();// + photo.data.length));
-			// return ok(photo.data).as("image/jpeg");
 		} else {
 			return Results.badRequest("File was not a photo");
 		}
 	}
 
+	//converting the image into a byte array
 	private static byte[] convertToByteArray(File file) {
 		byte[] result = new byte[(int) file.length()];
 
@@ -130,9 +128,9 @@ public class Application extends Controller {
 		return result;
 	}
 	
+	//getting the comment from the template form, associating it with the photo and saving to the DB 
 	public static Result postComment(Long photoId) {
 		DynamicForm formData = Form.form().bindFromRequest();
-//		formData.bindFromRequest();
 		String text = formData.get("text");
 		Logger.debug("comment added: " + text);
 		
@@ -142,7 +140,7 @@ public class Application extends Controller {
 				Comment comment = new Comment();
 				comment.text = text;
 				comment.timestamp = new Date();
-				//		comment.
+			
 				Photo photo = new Photo();
 				photo.id = photoId;
 

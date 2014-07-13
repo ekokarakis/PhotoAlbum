@@ -12,6 +12,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Post Photo Page
 GET		/postPhoto					controllers.Application.postPhotoPage()
 
+# Photo template
 POST 	/photo						controllers.Application.postPhoto()
 
 GET 	/photo/:id					controllers.Application.getPhotoData(id: Long)

@@ -9,6 +9,7 @@ import javax.persistence.OneToOne;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
+//PhotoData Class
 @Entity
 public class PhotoData extends Model {
 	@Id 
@@ -23,6 +24,7 @@ public class PhotoData extends Model {
 	
 	public String encoding;
 	
+	//method to retrieve the photo data
 	public static Finder<Long,PhotoData> find = new Finder<Long,PhotoData>(Long.class, PhotoData.class); 
 
 }

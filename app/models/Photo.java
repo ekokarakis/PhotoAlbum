@@ -12,7 +12,7 @@ import javax.persistence.OrderBy;
 import play.data.validation.Constraints.Required;
 import play.db.ebean.Model;
 
-
+//Photo class
 @Entity
 public class Photo extends Model {
 	@Id
@@ -21,7 +21,6 @@ public class Photo extends Model {
 	@Required
 	public String title;
 	
-//	@Formats.DateTime(pattern="dd/MM/yyyy")
 	@Required
 	public Date timestamp;
 	
@@ -32,5 +31,6 @@ public class Photo extends Model {
 	@OrderBy("timestamp ASC")
 	public List<Comment> comments;
 	
+	//method to retrieve photos
 	public static Finder<Long,Photo> find = new Finder<Long,Photo>(Long.class, Photo.class); 
 }

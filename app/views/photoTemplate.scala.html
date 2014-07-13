@@ -1,13 +1,14 @@
-@(photo: Photo, comments: List[String])
+@(photo: Photo)
 
 <br>
+<hr>
 <h2>@photo.title</h2>
 	
 <img src="@routes.Application.getPhotoData(photo.id)" height="300">
 
 <h3>Comments</h3>
 
-	@for(comment <- photo.comments) { <div>@comment.text</div><br> }
+@for(comment <- photo.comments) { <div>@comment.text</div><div>@comment.timestamp</div><br> }
 	
 
 @helper.form(action = routes.Application.postComment(photo.id)) {
